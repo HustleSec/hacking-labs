@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Token Listener</title>
+</head>
+<body>
+    <h1>Token Listener</h1>
+    <div id="token-display"></div>
+    
+    <iframe id="test" src="https://html5server.digi.ninja/s_child.html?origin=https://html5.digi.ninja"
+            style="width:100%; height:300px; border:1px solid #ddd;"></iframe>
+
+    <script>
+        const frame = document.querySelector("#test");
+
+        frame.addEventListener("load", () => {
+            frame.contentWindow.postMessage("test", "https://html5server.digi.ninja");
+        });
+		//change the /etc/hosts 127.0.0.1 html5server.digi.ninja
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Token Listener</title>
+</head>
+<body>
+    <h1>Token Listener</h1>
+    <div id="token-display"></div>
+    <iframe id="test" src="https://html5server.digi.ninja/l_child.php" style="width:100%; height:300px; border:1px solid #ddd;"></iframe>
+    <script>
+        window.addEventListener('message', function(event) {
+			console.log(event);
+            console.log('Message data:', event.data);
+            document.getElementById('token-display').innerText = "Token: " + event.data;
+        });
+    </script>
+</body>
+</html>

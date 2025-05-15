@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>child</title>
+</head>
+<body>
+	<h1>child that sends the secret</h1>
+		<script>
+			window.addEventListener("message", (e)=>
+			{
+				console.log("secret hijacked : ", e.data);
+			});
+		</script>
+</body>
+</html>

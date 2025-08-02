@@ -6,8 +6,6 @@ This challenge from the **BSidesSF 2020 CTF** demonstrates an advanced **Content
 
 The primary learning goal is understanding how seemingly secure CSP configurations that whitelist trusted domains can still be exploited through sophisticated client-side attacks.
 
----
-
 ## Challenge Description
 
 The web application implements a restrictive CSP policy that blocks most external resources but makes an exception for Google's AJAX libraries CDN:
@@ -17,8 +15,6 @@ Content-Security-Policy: connect-src '*'; default-src 'self' 'unsafe-inline'; sc
 ```
 
 The challenge requires bypassing this CSP to execute arbitrary JavaScript and potentially exfiltrate sensitive data from the application.
-
----
 
 ## CSP Policy Analysis
 
@@ -113,8 +109,6 @@ This CSP configuration creates several attack vectors:
 - All scripts load from the whitelisted `ajax.googleapis.com` domain
 - No inline scripts are used (satisfies CSP)
 - Dynamic code execution happens through template evaluation (allowed by `unsafe-eval`)
-
----
 
 ### 1. Identify Vulnerable Versions
 - **AngularJS 1.0.x - 1.1.x**: Known template injection vulnerabilities

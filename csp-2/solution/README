@@ -1,0 +1,128 @@
+# BSidesSF 2020 CTF – CSP Two Challenge (AngularJS Bypass)
+
+## Overview
+
+This challenge from the **BSidesSF 2020 CTF** demonstrates an advanced **Content Security Policy (CSP) bypass** technique using trusted domain exploitation and AngularJS template injection. Unlike simpler CSP bypasses that rely on `data:` URLs, this challenge requires leveraging whitelisted external domains and framework vulnerabilities.
+
+The primary learning goal is understanding how seemingly secure CSP configurations that whitelist trusted domains can still be exploited through sophisticated client-side attacks.
+
+---
+
+## Challenge Description
+
+The web application implements a restrictive CSP policy that blocks most external resources but makes an exception for Google's AJAX libraries CDN:
+
+```http
+Content-Security-Policy: connect-src '*'; default-src 'self' 'unsafe-inline'; script-src 'self' ajax.googleapis.com 'unsafe-eval'
+```
+
+The challenge requires bypassing this CSP to execute arbitrary JavaScript and potentially exfiltrate sensitive data from the application.
+
+---
+
+## CSP Policy Analysis
+
+### Policy Breakdown
+
+- **`script-src 'self' ajax.googleapis.com 'unsafe-eval'`**:
+  - Allows scripts from the same origin (`'self'`)
+  - Permits loading scripts from `ajax.googleapis.com` (Google's CDN)
+  - Enables `eval()` and similar dynamic code execution methods (`'unsafe-eval'`)
+  
+- **`default-src 'self' 'unsafe-inline'`**:
+  - Sets default policy to same-origin with inline content allowed
+  - Applies to resources not explicitly covered by other directives
+  
+- **`connect-src '*'`**:
+  - Allows `fetch`, `XMLHttpRequest`, and WebSocket connections to any domain
+  - Creates an avenue for data exfiltration
+
+### Security Assessment
+
+This CSP configuration creates several attack vectors:
+
+1. **Trusted Domain Exploitation**: `ajax.googleapis.com` hosts numerous JavaScript libraries, including vulnerable versions
+2. **Dynamic Code Execution**: `unsafe-eval` enables runtime JavaScript generation
+3. **Data Exfiltration Path**: Wildcard `connect-src` allows sending data anywhere
+4. **Framework Vulnerabilities**: Older library versions may contain exploitable features
+
+---
+
+## Attack Vector: AngularJS Template Injection
+
+## Technical Deep Dive
+
+### Payload Component Analysis
+
+#### 1. Primary AngularJS Loading
+```html
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.3/angular.min.js"></script>
+```
+- Loads AngularJS 1.1.3, which contains template injection vulnerabilities
+- Uses protocol-relative URL to match current scheme
+- Satisfies CSP requirement for `ajax.googleapis.com` domain
+
+#### 2. Application Context Setup
+```html
+<div ng-app ng-csp>
+```
+- `ng-app`: Creates an AngularJS application scope
+- `ng-csp`: Tells AngularJS to operate in CSP-compatible mode
+- Enables template processing within the div
+
+#### 3. Base URL Manipulation
+```html
+<base href=//ajax.googleapis.com/ajax/libs/>
+```
+- Sets the base URL for relative script sources
+- Simplifies loading additional libraries from the same CDN
+- All subsequent relative URLs resolve against this base
+
+#### 4. Additional Library Loading
+```html
+<script src=angularjs/1.0.1/angular.js></script>
+<script src=prototype/1.7.2.0/prototype.js></script>
+```
+- Loads an even older AngularJS version (1.0.1) with more vulnerabilities
+- Loads Prototype.js 1.7.2.0 which adds the `curry` method to Function.prototype
+- Both libraries load from the trusted domain via the base URL
+
+#### 5. Template Injection Execution
+```html
+{{$on.curry.call().alert('test')}}
+```
+- `$on`: AngularJS scope method for event handling
+- `.curry`: Method added by Prototype.js to all functions
+- `.call()`: Executes the curried function
+- `.alert('test')`: Demonstrates arbitrary code execution
+
+### Why This Attack Works
+
+#### AngularJS Template System
+- AngularJS evaluates expressions within `{{ }}` in the context of the current scope
+- Early versions had insufficient sandboxing for template expressions
+- The `ng-csp` directive doesn't prevent template evaluation, only inline script execution
+
+#### Prototype Pollution Chain
+1. Prototype.js extends `Function.prototype` with additional methods
+2. The `curry` method creates a new function that can be called later
+3. AngularJS scope methods like `$on` inherit these prototype extensions
+4. Method chaining allows building complex execution chains
+
+#### CSP Compliance
+- All scripts load from the whitelisted `ajax.googleapis.com` domain
+- No inline scripts are used (satisfies CSP)
+- Dynamic code execution happens through template evaluation (allowed by `unsafe-eval`)
+
+---
+
+### 1. Identify Vulnerable Versions
+- **AngularJS 1.0.x - 1.1.x**: Known template injection vulnerabilities
+- **Prototype.js 1.7.x**: Adds exploitable prototype methods
+- Test combinations for maximum effectiveness
+
+### 2. Craft the Basic Exploit
+```html
+<!-- Minimal working exploit -->
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.3/angular.min.js"></script><div ng-app ng-csp><base href=//ajax.googleapis.com/ajax/libs/><script src=angularjs/1.0.1/angular.js></script><script src=prototype/1.7.2.0/prototype.js></script>{{$on.curry.call().alert(test)}}>
+```

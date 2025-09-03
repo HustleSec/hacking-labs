@@ -104,3 +104,13 @@ curl https://yellow.ctfio.com/api/usermgm/actuato%72/env | jq .
 ```
 
 ![Screeshot](./env.png)
+
+## Reference
+[Link Text](URL)
+[play ctf now](https://app.hackinghub.io/hubs/url-maze)
+[Link Text](URL)
+[more about misconfig actuators](https://www.wiz.io/blog/spring-boot-actuator-misconfigurations#common-misconfigurations-in-spring-boot-actuator-15)
+[Link Text](URL)
+[more about misconfig actuators](https://blog.certcube.com/spring-boot-pentesting-part-3-lab-setup/)
+[Link Text](URL)
+[more about misconfig actuators](https://0xn3va.gitbook.io/cheat-sheets/framework/spring/spring-boot-actuators)

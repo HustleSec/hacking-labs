@@ -1,0 +1,3 @@
+[submodule "astrolock"]
+	path = astrolock
+	url = http://github.com/synacktiv/astrolock

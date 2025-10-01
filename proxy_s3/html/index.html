@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate Assets Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007acc;
+            padding-bottom: 10px;
+        }
+        .asset-list {
+            list-style: none;
+            padding: 0;
+        }
+        .asset-list li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007acc;
+        }
+        .asset-list a {
+            text-decoration: none;
+            color: #007acc;
+            font-weight: bold;
+        }
+        .asset-list a:hover {
+            text-decoration: underline;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .hint {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Corporate Assets Portal</h1>
+        
+        <div class="info-box">
+            <strong>Welcome to SecureCorp's Asset Management System</strong>
+            <p>This portal provides secure access to our corporate digital assets through our nginx proxy layer.</p>
+        </div>
+
+        <h2>📁 Available Corporate Assets</h2>
+        <ul class="asset-list">
+            <li>🎨 <a href="/assets/stylesheet.css" target="_blank">Company Stylesheet</a> - Corporate branding styles</li>
+            <li>🖼️ <a href="/assets/logo.png" target="_blank">Company Logo</a> - Official corporate logo</li>
+            <li>📄 <a href="/assets/document.pdf" target="_blank">Corporate Document</a> - Important company information</li>
+            <li>📊 <a href="/assets/presentation.pptx" target="_blank">Company Presentation</a> - Latest quarterly slides</li>
+        </ul>
+
+        <div class="info-box">
+            <strong>🔒 Security Notice:</strong> All assets are served from our secure <code>corporate-assets</code> bucket through our nginx proxy configuration. Unauthorized access is not permitted.
+        </div>
+
+        <div class="hint">
+            <strong>CTF Hint:</strong> Sometimes proxy configurations can have subtle vulnerabilities... 
+            What happens when special characters meet regular expressions? 🤔
+        </div>
+
+        <footer style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #666;">
+            <p>SecureCorp Asset Portal v1.0 | Powered by nginx + S3</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,23 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    resolver 127.0.0.11; # Docker's internal DNS
+
+    location / {
+        set $s3_name "company-bucket";
+        set $s3_host "minio:9000";
+
+        # Vulnerable rewrite: Fails if %0A (\n) is in the normalized path due to ^ and $ anchors + . not matching \n.
+        rewrite ^(.*)$ /$s3_name$1 break;
+
+        proxy_pass http://$s3_host;
+        proxy_set_header Host $s3_host;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+    }
+}
+
+# worked for flag
+
+
